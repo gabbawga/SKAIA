@@ -51,16 +51,22 @@ async function buscarArtigosSemelhantes(pergunta, limite = 3) {
 }
 
 // EXEMPLO DE USO
-(async () => {
-  const pergunta = 'Como configurar a saida e exibir alerta';
-  const artigosRelevantes = await buscarArtigosSemelhantes(pergunta);
+// (async () => {
+//   const pergunta = 'Como configurar a saida e exibir alerta';
+//   const artigosRelevantes = await buscarArtigosSemelhantes(pergunta);
 
-  console.log('🔢 Quantidade de artigos relevantes:', artigosRelevantes.length);
+//   console.log('🔢 Quantidade de artigos relevantes:', artigosRelevantes.length);
 
-  console.log('\n🔍 Artigos mais parecidos com a pergunta:');
-  artigosRelevantes.forEach((a, i) => {
-    console.log(`\n${i + 1}. ${a.titulo}`);
-    console.log(`Similaridade: ${a.similaridade.toFixed(4)}`);
-    console.log(`Resumo: ${a.conteudo.slice(0, 300)}...\n`);
-  });
-})();
+//   console.log('\n🔍 Artigos mais parecidos com a pergunta:');
+//   artigosRelevantes.forEach((a, i) => {
+//     console.log(`\n${i + 1}. ${a.titulo}`);
+//     console.log(`Similaridade: ${a.similaridade.toFixed(4)}`);
+//     console.log(`Resumo: ${a.conteudo.slice(0, 300)}...\n`);
+//   });
+// })();
+
+
+module.exports = {
+  buscarArtigosSemelhantes
+};
+
