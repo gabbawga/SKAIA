@@ -7,7 +7,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// Função para calcular a similaridade entre dois vetores (cosine similarity)
+// Função para calcular a similaridade entre dois vetores
 function cosineSimilarity(vecA, vecB) {
   const dotProduct = vecA.reduce((sum, a, i) => sum + a * vecB[i], 0);
   const magnitudeA = Math.sqrt(vecA.reduce((sum, a) => sum + a * a, 0));
@@ -15,11 +15,14 @@ function cosineSimilarity(vecA, vecB) {
   return dotProduct / (magnitudeA * magnitudeB);
 }
 
-// Função principal de busca
+// Função principal
 async function buscarArtigosSemelhantes(pergunta, limite = 3) {
-  const caminhoBase = path.join(__dirname, 'base_embedded.json');
+  const caminhoBase = path.join(__dirname, 'base_conhecimento.json');
   const base = JSON.parse(fs.readFileSync(caminhoBase, 'utf8'));
-  // Gera embedding da pergunta com OpenAI
+
+  console.log('🧪 Artigos carregados:', base.length);
+
+  // Gera embedding da pergunta
   const resposta = await openai.embeddings.create({
     model: 'text-embedding-ada-002',
     input: pergunta,
@@ -27,23 +30,32 @@ async function buscarArtigosSemelhantes(pergunta, limite = 3) {
 
   const vetorPergunta = resposta.data[0].embedding;
 
-  // Compara com todos os artigos
-  const resultados = base.map(artigo => {
-    const similaridade = cosineSimilarity(vetorPergunta, artigo.embedding);
-    return { ...artigo, similaridade };
-  });
+  console.log('✅ Embedding da pergunta gerado com tamanho:', vetorPergunta.length);
 
-  // Ordena por similaridade (do maior pro menor)
+  const resultados = base
+    .filter(artigo => {
+      const valido = Array.isArray(artigo.embeddings) && artigo.embeddings.length === vetorPergunta.length;
+      if (!valido) {
+        console.warn('❌ Embedding inválido em:', artigo.titulo);
+      }
+      return valido;
+    })
+    .map(artigo => {
+      const similaridade = cosineSimilarity(vetorPergunta, artigo.embeddings);
+      return { ...artigo, similaridade };
+    });
+
   resultados.sort((a, b) => b.similaridade - a.similaridade);
 
-  // Retorna os mais parecidos
   return resultados.slice(0, limite);
 }
 
 // EXEMPLO DE USO
 (async () => {
-  const pergunta = 'Como configurar o IO na produção?';
+  const pergunta = 'Como configurar a saida e exibir alerta';
   const artigosRelevantes = await buscarArtigosSemelhantes(pergunta);
+
+  console.log('🔢 Quantidade de artigos relevantes:', artigosRelevantes.length);
 
   console.log('\n🔍 Artigos mais parecidos com a pergunta:');
   artigosRelevantes.forEach((a, i) => {
