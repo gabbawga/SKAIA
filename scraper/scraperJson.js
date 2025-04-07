@@ -60,6 +60,7 @@ async function extrairConteudos() {
     await browser.close();
 }
 
+// adicionei esse comentario para testar o git
 
  //extrairConteudos()
 
